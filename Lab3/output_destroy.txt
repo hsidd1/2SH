@@ -1,0 +1,99 @@
+0void TestQ2_withdraw_test(CuTest *tc) {
+		char inputFile[] =  "student_test.txt";
+		char gradesFile[] =  "grades_test.txt";
+		int size;
+
+		// Created class list using the input file
+		student **Clist = create_class_list(inputFile,&size);
+
+		// Inputed grades using the grades input file
+		input_grades(gradesFile,Clist,size);
+		// Calculated final grades
+		compute_final_course_grades(Clist,size);
+
+		// Withdraw three times
+		// Id which is not found in the list
+		withdraw(7060,Clist,&size);
+		// Id which are found and will be withdrawn from the list
+		withdraw(3000,Clist,&size);
+		withdraw(3400,Clist,&size);
+
+		//Output final course marks
+		output_final_course_grades("output_grades_test.txt",Clist,size);
+
+		//now we open the golden file with the written file and compare line by line
+		char actualFile[] =  "output_grades_test.txt";
+		char goldenFile[] =  "output_test.txt";
+
+		char actual[1000], expected[1000];
+		int actualID,expectedID;
+		double actualFinalGrade,expectedFinalGrade;
+
+		FILE *actualPtr, *expectedPtr;
+		if ((actualPtr = fopen(actualFile, "r")) == NULL || (expectedPtr = fopen(goldenFile, "r")) == NULL) {
+			printf("Error! opening file");
+			// Program exits if file pointer returns NULL.
+			exit(1);
+		}
+
+		int actualNumStudents,expectedNumStudents;
+
+		fscanf(actualPtr,"%d",&actualNumStudents);
+
+		fscanf(expectedPtr,"%d",&expectedNumStudents);
+
+		CuAssertIntEquals(tc, expectedNumStudents, actualNumStudents);
+
+		int i;
+		for(i=0;i<expectedNumStudents;i++){
+			fscanf(actualPtr,"%d",&actualID);
+			fscanf(expectedPtr,"%d",&expectedID);
+			CuAssertIntEquals(tc, expectedID, actualID);
+			fscanf(actualPtr,"%lf",&actualFinalGrade);
+			fscanf(expectedPtr,"%lf",&expectedFinalGrade);
+			CuAssertDblEquals(tc, expectedFinalGrade, actualFinalGrade,0.000001);
+		}
+
+		if ((actualPtr == NULL && expectedPtr!=NULL)|| (actualPtr != NULL && expectedPtr==NULL)){
+
+			printf("files are not of equal size");
+			// Program exits if file pointer returns NULL.
+			exit(1);
+		}
+
+		// Destroy the list
+		destroy_list(Clist,&size);
+		output_final_course_grades("output_grades_destroy.txt",Clist,size);
+
+		//now we open the golden file with the written file and compare line by line
+		char actualFile_des[] =  "output_grades_destroy.txt";
+		char goldenFile_des[] =  "output_destroy.txt";
+
+		if ((actualPtr = fopen(actualFile_des, "r")) == NULL || (expectedPtr = fopen(goldenFile_des, "r")) == NULL) {
+			printf("Error! opening file");
+			// Program exits if file pointer returns NULL.
+			exit(1);
+		}
+
+		fscanf(actualPtr,"%d",&actualNumStudents);
+
+		fscanf(expectedPtr,"%d",&expectedNumStudents);
+
+		CuAssertIntEquals(tc, expectedNumStudents, actualNumStudents);
+
+		for(i=0;i<expectedNumStudents;i++){
+			fscanf(actualPtr,"%d",&actualID);
+			fscanf(expectedPtr,"%d",&expectedID);
+			CuAssertIntEquals(tc, expectedID, actualID);
+			fscanf(actualPtr,"%lf",&actualFinalGrade);
+			fscanf(expectedPtr,"%lf",&expectedFinalGrade);
+			CuAssertDblEquals(tc, expectedFinalGrade, actualFinalGrade,0.000001);
+		}
+
+		if ((actualPtr == NULL && expectedPtr!=NULL)|| (actualPtr != NULL && expectedPtr==NULL)){
+
+			printf("files are not of equal size");
+			// Program exits if file pointer returns NULL.
+			exit(1);
+		}
+}
